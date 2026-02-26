@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The LLM Stack — Interactive Diagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0a0a1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .background-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.15;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .glow-orb:nth-child(1) {
+            width: 500px;
+            height: 500px;
+            background: #7c3aed;
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .glow-orb:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            background: #ef4444;
+            bottom: 10%;
+            left: -100px;
+            animation-delay: -3s;
+        }
+
+        .glow-orb:nth-child(3) {
+            width: 350px;
+            height: 350px;
+            background: #22c55e;
+            top: 40%;
+            right: 10%;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -20px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        header {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 60px 20px 20px;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a78bfa, #60a5fa, #34d399, #fbbf24);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 6s ease infinite;
+        }
+
+        header p {
+            margin-top: 12px;
+            font-size: 1.15rem;
+            color: #94a3b8;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .stack-container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px 80px;
+            gap: 0;
+        }
+
+        .connector {
+            width: 4px;
+            height: 60px;
+            position: relative;
+            overflow: visible;
+        }
+
+        .connector-line {
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--from-color), var(--to-color));
+            border-radius: 2px;
+            position: relative;
+            opacity: 0;
+            transform: scaleY(0);
+            transform-origin: top;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .connector-line.visible {
+            opacity: 1;
+            transform: scaleY(1);
+        }
+
+        .connector-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--to-color);
+            position: absolute;
+            bottom: -7px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s;
+            box-shadow: 0 0 12px var(--to-color);
+        }
+
+        .connector-dot.visible {
+            transform: translateX(-50%) scale(1);
+        }
+
+        .pulse-ring {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid var(--to-color);
+            bottom: -7px;
+            left: 50%;
+            transform: translateX(-50%) scale(1);
+            opacity: 0;
+        }
+
+        .connector-dot.visible + .pulse-ring,
+        .connector-dot.visible ~ .pulse-ring {
+            animation: pulse 2s ease-out infinite 0.6s;
+        }
+
+        @keyframes pulse {
+            0% { transform: translateX(-50%) scale(1); opacity: 0.6; }
+            100% { transform: translateX(-50%) scale(3); opacity: 0; }
+        }
+
+        .layer-card {
+            width: 100%;
+            max-width: 720px;
+            border-radius: 20px;
+            padding: 36px 40px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(60px) scale(0.95);
+            transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .layer-card.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .layer-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            background: var(--card-bg);
+            z-index: -1;
+        }
+
+        .layer-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 20px;
+            background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), var(--glow-color) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .layer-card:hover::after {
+            opacity: 1;
+        }
+
+        .layer-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            border-color: var(--accent-color);
+            box-shadow: 0 20px 60px -15px var(--shadow-color);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .layer-number {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            font-weight: 800;
+            background: var(--number-bg);
+            color: var(--accent-color);
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .layer-number .icon {
+            font-size: 1.6rem;
+        }
+
+        .card-title-group {
+            flex: 1;
+        }
+
+        .layer-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-color);
+            margin-bottom: 2px;
+        }
+
+        .layer-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+
+        .expand-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #64748b;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .layer-card:hover .expand-icon {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--accent-color);
+        }
+
+        .layer-card.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .card-description {
+            font-size: 1rem;
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .card-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.5s ease;
+        }
+
+        .layer-card.expanded .card-details {
+            max-height: 600px;
+        }
+
+        .detail-section {
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            margin-top: 16px;
+        }
+
+        .detail-section h4 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent-color);
+            margin-bottom: 12px;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .tag {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            background: var(--tag-bg);
+            color: var(--tag-color);
+            border: 1px solid var(--tag-border);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .tag:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        .who-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .who-section .who-icon {
+            font-size: 1.4rem;
+        }
+
+        .who-section span {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+
+        .layer-card[data-layer="theory"] {
+            --accent-color: #fbbf24;
+            --card-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.08) 0%, rgba(15, 15, 30, 0.95) 100%);
+            --glow-color: rgba(251, 191, 36, 0.08);
+            --shadow-color: rgba(251, 191, 36, 0.15);
+            --number-bg: rgba(251, 191, 36, 0.12);
+            --tag-bg: rgba(251, 191, 36, 0.08);
+            --tag-color: #fbbf24;
+            --tag-border: rgba(251, 191, 36, 0.2);
+        }
+
+        .layer-card[data-layer="frameworks"] {
+            --accent-color: #22c55e;
+            --card-bg: linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, rgba(15, 15, 30, 0.95) 100%);
+            --glow-color: rgba(34, 197, 94, 0.08);
+            --shadow-color: rgba(34, 197, 94, 0.15);
+            --number-bg: rgba(34, 197, 94, 0.12);
+            --tag-bg: rgba(34, 197, 94, 0.08);
+            --tag-color: #22c55e;
+            --tag-border: rgba(34, 197, 94, 0.2);
+        }
+
+        .layer-card[data-layer="models"] {
+            --accent-color: #ef4444;
+            --card-bg: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(15, 15, 30, 0.95) 100%);
+            --glow-color: rgba(239, 68, 68, 0.08);
+            --shadow-color: rgba(239, 68, 68, 0.15);
+            --number-bg: rgba(239, 68, 68, 0.12);
+            --tag-bg: rgba(239, 68, 68, 0.08);
+            --tag-color: #ef4444;
+            --tag-border: rgba(239, 68, 68, 0.2);
+        }
+
+        .layer-card[data-layer="applications"] {
+            --accent-color: #a78bfa;
+            --card-bg: linear-gradient(135deg, rgba(167, 139, 250, 0.08) 0%, rgba(15, 15, 30, 0.95) 100%);
+            --glow-color: rgba(167, 139, 250, 0.08);
+            --shadow-color: rgba(167, 139, 250, 0.15);
+            --number-bg: rgba(167, 139, 250, 0.12);
+            --tag-bg: rgba(167, 139, 250, 0.08);
+            --tag-color: #a78bfa;
+            --tag-border: rgba(167, 139, 250, 0.2);
+        }
+
+        .direction-hint {
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: -10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .direction-hint span {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 0.82rem;
+            color: #64748b;
+            letter-spacing: 0.5px;
+        }
+
+        .direction-hint .arrow {
+            animation: bounceUp 1.5s ease-in-out infinite;
+        }
+
+        @keyframes bounceUp {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        footer {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 40px 20px 60px;
+        }
+
+        footer p {
+            color: #475569;
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+
+        @media (max-width: 640px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .layer-card {
+                padding: 24px 20px;
+            }
+
+            .layer-title {
+                font-size: 1.2rem;
+            }
+
+            .card-header {
+                gap: 12px;
+            }
+
+            .layer-number {
+                width: 44px;
+                height: 44px;
+                border-radius: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-glow">
+        <div class="glow-orb"></div>
+        <div class="glow-orb"></div>
+        <div class="glow-orb"></div>
+    </div>
+
+    <canvas class="particles-canvas" id="particles"></canvas>
+
+    <header>
+        <h1>🧠 The LLM Stack</h1>
+        <p>An interactive guide to understanding how modern AI systems are structured — from foundations to applications.</p>
+    </header>
+
+    <div class="direction-hint">
+        <span><span class="arrow">⬆</span> Higher = Closer to Users &nbsp;|&nbsp; Lower = Closer to Math <span class="arrow">⬇</span></span>
+    </div>
+
+    <div class="stack-container" id="stack">
+
+        <div class="layer-card" data-layer="applications" data-index="0">
+            <div class="card-header">
+                <div class="layer-number"><span class="icon">🟣</span></div>
+                <div class="card-title-group">
+                    <div class="layer-label">Layer 4</div>
+                    <div class="layer-title">Application Layer</div>
+                </div>
+                <div class="expand-icon">▼</div>
+            </div>
+            <div class="card-description">Where AI products are created. You call APIs, design prompts, build workflows, and connect tools — without training models yourself.</div>
+            <div class="card-details">
+                <div class="detail-section">
+                    <h4>Key Concepts</h4>
+                    <div class="tags">
+                        <span class="tag">Chatbots</span>
+                        <span class="tag">AI Agents</span>
+                        <span class="tag">RAG Systems</span>
+                        <span class="tag">Prompt Engineering</span>
+                        <span class="tag">API Integration</span>
+                        <span class="tag">AI-powered SaaS</span>
+                        <span class="tag">LangChain</span>
+                        <span class="tag">Workflow Automation</span>
+                    </div>
+                    <div class="who-section">
+                        <span class="who-icon">👥</span>
+                        <span>Startup Founders &bull; Product Engineers &bull; Full-stack Developers &bull; Automation Builders</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="connector" style="--from-color: #a78bfa; --to-color: #ef4444;">
+            <div class="connector-line"></div>
+            <div class="connector-dot"></div>
+            <div class="pulse-ring"></div>
+        </div>
+
+        <div class="layer-card" data-layer="models" data-index="1">
+            <div class="card-header">
+                <div class="layer-number"><span class="icon">🔴</span></div>
+                <div class="card-title-group">
+                    <div class="layer-label">Layer 3</div>
+                    <div class="layer-title">Model Layer</div>
+                </div>
+                <div class="expand-icon">▼</div>
+            </div>
+            <div class="card-description">Where large language models live. They are pretrained on massive datasets, fine-tuned for performance, and aligned for helpfulness and safety.</div>
+            <div class="card-details">
+                <div class="detail-section">
+                    <h4>Key Concepts</h4>
+                    <div class="tags">
+                        <span class="tag">GPT-4</span>
+                        <span class="tag">Claude</span>
+                        <span class="tag">LLaMA</span>
+                        <span class="tag">Pretraining</span>
+                        <span class="tag">Fine-tuning</span>
+                        <span class="tag">RLHF</span>
+                        <span class="tag">GPU Clusters</span>
+                        <span class="tag">Alignment</span>
+                    </div>
+                    <div class="who-section">
+                        <span class="who-icon">👥</span>
+                        <span>ML Researchers &bull; AI Safety Engineers &bull; Research Labs (OpenAI, Anthropic, Meta)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="connector" style="--from-color: #ef4444; --to-color: #22c55e;">
+            <div class="connector-line"></div>
+            <div class="connector-dot"></div>
+            <div class="pulse-ring"></div>
+        </div>
+
+        <div class="layer-card" data-layer="frameworks" data-index="2">
+            <div class="card-header">
+                <div class="layer-number"><span class="icon">🟢</span></div>
+                <div class="card-title-group">
+                    <div class="layer-label">Layer 2</div>
+                    <div class="layer-title">Framework Layer</div>
+                </div>
+                <div class="expand-icon">▼</div>
+            </div>
+            <div class="card-description">Frameworks turn mathematical ideas into working code. They handle automatic differentiation, GPU acceleration, and neural network building.</div>
+            <div class="card-details">
+                <div class="detail-section">
+                    <h4>Key Concepts</h4>
+                    <div class="tags">
+                        <span class="tag">PyTorch</span>
+                        <span class="tag">TensorFlow</span>
+                        <span class="tag">JAX</span>
+                        <span class="tag">Auto-differentiation</span>
+                        <span class="tag">GPU Acceleration</span>
+                        <span class="tag">Training Loops</span>
+                        <span class="tag">Hugging Face</span>
+                        <span class="tag">CUDA</span>
+                    </div>
+                    <div class="who-section">
+                        <span class="who-icon">👥</span>
+                        <span>ML Engineers &bull; Researchers Experimenting with Architectures &bull; Custom Model Trainers</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="connector" style="--from-color: #22c55e; --to-color: #fbbf24;">
+            <div class="connector-line"></div>
+            <div class="connector-dot"></div>
+            <div class="pulse-ring"></div>
+        </div>
+
+        <div class="layer-card" data-layer="theory" data-index="3">
+            <div class="card-header">
+                <div class="layer-number"><span class="icon">🟡</span></div>
+                <div class="card-title-group">
+                    <div class="layer-label">Layer 1</div>
+                    <div class="layer-title">Theory &amp; Architecture</div>
+                </div>
+                <div class="expand-icon">▼</div>
+            </div>
+            <div class="card-description">The math and core ideas behind LLMs. This is the foundation that everything else is built upon.</div>
+            <div class="card-details">
+                <div class="detail-section">
+                    <h4>Key Concepts</h4>
+                    <div class="tags">
+                        <span class="tag">Linear Algebra</span>
+                        <span class="tag">Transformers</span>
+                        <span class="tag">Attention Mechanism</span>
+                        <span class="tag">Backpropagation</span>
+                        <span class="tag">Probability</span>
+                        <span class="tag">SGD &amp; Adam</span>
+                        <span class="tag">Embeddings</span>
+                        <span class="tag">Tokenization</span>
+                    </div>
+                    <div class="who-section">
+                        <span class="who-icon">👥</span>
+                        <span>Students &bull; Researchers &bull; Curious Engineers &bull; Academics</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>Built with ❤️ to explain The LLM Stack simply.</p>
+    </footer>
+
+    <script>
+        (function () {
+            const canvas = document.getElementById('particles');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            let animFrameId;
+
+            function resizeCanvas() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            const COLORS = ['#fbbf24', '#22c55e', '#ef4444', '#a78bfa', '#60a5fa'];
+
+            function createParticle() {
+                return {
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2 + 0.5,
+                    speedX: (Math.random() - 0.5) * 0.3,
+                    speedY: (Math.random() - 0.5) * 0.3,
+                    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+                    opacity: Math.random() * 0.4 + 0.1,
+                    pulse: Math.random() * Math.PI * 2
+                };
+            }
+
+            for (let i = 0; i < 80; i++) {
+                particles.push(createParticle());
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                particles.forEach(p => {
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    p.pulse += 0.02;
+
+                    if (p.x < 0) p.x = canvas.width;
+                    if (p.x > canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = canvas.height;
+                    if (p.y > canvas.height) p.y = 0;
+
+                    const currentOpacity = p.opacity * (0.6 + Math.sin(p.pulse) * 0.4);
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = currentOpacity;
+                    ctx.fill();
+                });
+
+                ctx.globalAlpha = 1;
+                animFrameId = requestAnimationFrame(animate);
+            }
+
+            animate();
+
+            const cards = document.querySelectorAll('.layer-card');
+            const connectors = document.querySelectorAll('.connector');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const index = parseInt(entry.target.dataset.index, 10);
+                        const delay = index * 150;
+
+                        setTimeout(() => {
+                            entry.target.classList.add('visible');
+                        }, delay);
+
+                        if (index > 0) {
+                            const connector = connectors[index - 1];
+                            if (connector) {
+                                setTimeout(() => {
+                                    connector.querySelector('.connector-line').classList.add('visible');
+                                    connector.querySelector('.connector-dot').classList.add('visible');
+                                }, delay + 200);
+                            }
+                        }
+
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.2,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
+            cards.forEach(card => observer.observe(card));
+
+            cards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const isExpanded = card.classList.contains('expanded');
+
+                    cards.forEach(c => c.classList.remove('expanded'));
+
+                    if (!isExpanded) {
+                        card.classList.add('expanded');
+                    }
+                });
+
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width) * 100;
+                    const y = ((e.clientY - rect.top) / rect.height) * 100;
+                    card.style.setProperty('--mouse-x', x + '%');
+                    card.style.setProperty('--mouse-y', y + '%');
+                });
+            });
+
+            if (window.innerHeight > 800) {
+                setTimeout(() => {
+                    connectors.forEach(c => {
+                        c.querySelector('.connector-line').classList.add('visible');
+                        c.querySelector('.connector-dot').classList.add('visible');
+                    });
+                    cards.forEach(c => c.classList.add('visible'));
+                }, 300);
+            }
+        })();
+    </script>
+</body>
+</html>

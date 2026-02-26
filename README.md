@@ -26,8 +26,7 @@ This project gives you a **clear mental model** of the entire stack.
 
 ---
 
-# 🏗 The Big Picture
-
+# 🏗 The Big Picture 
 
 
 Think of it like a building:
@@ -36,6 +35,7 @@ Think of it like a building:
 - 🟢 **Frameworks** = The construction tools  
 - 🔴 **Models** = The trained engine  
 - 🟣 **Applications** = The product users interact with  
+
 
 ---
 
@@ -137,14 +137,14 @@ Start from the top (Applications → Learn deeper only when needed).
 
 ---
 
-# 🧩 Quick Summary
+# 🧩 Quick Summary | [Open Interactive Diagram](diagram.html)
 
 | Layer | What It Means | Who Works Here |
 |-------|---------------|---------------|
-| 🟣 Applications | Building AI products | Developers & founders |
+| 🟣 Applications | Use LLMs to build AI products | Developers & founders |
 | 🔴 Models | Training large LLMs | ML researchers |
-| 🟢 Frameworks | Writing ML training code | ML engineers |
-| 🟡 Theory | Math & core concepts | Students & researchers |
+| 🟢 Frameworks | Build LLMs/Writing ML training code | ML engineers |
+| 🟡 Theory | Understand LLMs i.e.Math & core concepts | Students & researchers |
 
 ---
 
@@ -166,9 +166,8 @@ Start from the top (Applications → Learn deeper only when needed).
 
 # 💡 Key Takeaway
 
-You don’t need to understand *everything* to start building.
-
-Just know **where you are in the stack** — and go deeper only when necessary.
+- You don’t need to understand *everything* to start building.
+- Just know **where you are in the stack** — and go deeper only when necessary.
 
 ---
 
