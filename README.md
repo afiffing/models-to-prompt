@@ -137,7 +137,7 @@ Start from the top (Applications → Learn deeper only when needed).
 
 ---
 
-# 🧩 Quick Summary | [Open Interactive Diagram](diagram.html)
+# 🧩 Quick Summary | [Open Interactive Diagram](https://afiffing.github.io/LLMs/diagram.html)
 
 | Layer | What It Means | Who Works Here |
 |-------|---------------|---------------|
