@@ -1,5 +1,35 @@
 # LLMs
 
+# 🧠 The LLM Stack — Explained Simply
+
+![Level](https://img.shields.io/badge/Level-Beginner%20Friendly-brightgreen)
+![Focus](https://img.shields.io/badge/Focus-LLMs-blue)
+![Purpose](https://img.shields.io/badge/Purpose-Educational-orange)
+![License](https://img.shields.io/badge/License-MIT-lightgrey)
+
+> 📌 Beginner-friendly visual guide explaining how LLMs are structured — from foundations to applications.
+
+---
+
+# 📖 About This Project
+
+This repository explains **how modern AI systems like ChatGPT and Claude are structured** in a simple, visual way.
+
+If you've ever wondered:
+
+- Where does TensorFlow fit in?
+- What’s the difference between a model and a framework?
+- Do I need to understand transformers to build AI apps?
+- Where should I start learning?
+
+This project gives you a **clear mental model** of the entire stack.
+
+---
+
+# 🏗 The Big Picture
+
+
+
 Think of it like a building:
 
 - 🟡 **Theory** = The foundation  
