@@ -1,6 +1,6 @@
 # LLMs
 
-# 🧠 The LLM Stack — Explained Simply
+## 🧠 The LLM Stack — Explained Simply
 
 ![Level](https://img.shields.io/badge/Level-Beginner%20Friendly-brightgreen)
 ![Focus](https://img.shields.io/badge/Focus-LLMs-blue)
@@ -11,7 +11,7 @@
 
 ---
 
-# 📖 About This Project
+## 📖 About This Project
 
 This repository explains **how modern AI systems like ChatGPT and Claude are structured** in a simple, visual way.
 
@@ -26,7 +26,7 @@ This project gives you a **clear mental model** of the entire stack.
 
 ---
 
-# 🏗 The Big Picture 
+## 🏗 The Big Picture 
 
 
 Think of it like a building:
@@ -39,7 +39,7 @@ Think of it like a building:
 
 ---
 
-# 🟡 1. Theory & Architecture (The Foundation)
+## 🟡 1. Theory & Architecture (The Foundation)
 
 This is the math and core ideas behind LLMs.
 
@@ -60,7 +60,7 @@ Best for:
 
 ---
 
-# 🟢 2. Framework Layer (The Tools)
+## 🟢 2. Framework Layer (The Tools)
 
 Frameworks turn mathematical ideas into working code.
 
@@ -83,7 +83,7 @@ Best for:
 
 ---
 
-# 🔴 3. Model Layer (The Trained LLMs)
+## 🔴 3. Model Layer (The Trained LLMs)
 
 This is where large language models live.
 
@@ -101,7 +101,7 @@ Most developers **do not work at this layer**.
 
 ---
 
-# 🟣 4. Application Layer (Where Most People Build)
+## 🟣 4. Application Layer (Where Most People Build)
 
 This is where AI products are created.
 
@@ -127,7 +127,7 @@ Best for:
 
 ---
 
-# 🎯 Which Path Should You Take?
+## 🎯 Which Path Should You Take?
 
 ### 🔍 Want to understand how LLMs work internally?
 Start from the bottom (Theory → Frameworks → Models).
@@ -137,7 +137,7 @@ Start from the top (Applications → Learn deeper only when needed).
 
 ---
 
-# 🧩 Quick Summary | [Open Interactive Diagram](https://afiffing.github.io/LLMs/diagram.html)
+## 🧩 Quick Summary | [Open Interactive Diagram](https://afiffing.github.io/models-to-prompt/diagram.html)
 
 | Layer | What It Means | Who Works Here |
 |-------|---------------|---------------|
@@ -148,7 +148,7 @@ Start from the top (Applications → Learn deeper only when needed).
 
 ---
 
-# 📘 Example Learning Roadmaps
+## 📘 Example Learning Roadmaps
 
 ## Beginner (Product Focus)
 1. Learn how to use LLM APIs  
@@ -164,19 +164,19 @@ Start from the top (Applications → Learn deeper only when needed).
 
 ---
 
-# 💡 Key Takeaway
+## 💡 Key Takeaway
 
 - You don’t need to understand *everything* to start building.
 - Just know **where you are in the stack** — and go deeper only when necessary.
 
 ---
 
-# 📄 License
+## 📄 License
 
 MIT License
 
 ---
 
-# ⭐ If This Helped
+## ⭐ If This Helped
 
 Consider starring the repository and sharing it with someone learning AI.
