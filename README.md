@@ -177,6 +177,14 @@ MIT License
 
 ---
 
+## 📄 Links
+
+- https://ngrok.com/blog/prompt-caching/
+- https://github.com/rasbt/LLMs-from-scratch/tree/main
+
+---
+
 ## ⭐ If This Helped
 
 Consider starring the repository and sharing it with someone learning AI.
+
