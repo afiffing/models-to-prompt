@@ -1,0 +1,24 @@
+{
+  "login": {
+    "qr_scan_timeout": 60
+  },
+  "group": [{
+    "title": "test group 2026",
+    "description": "For testing purposes only"
+  },
+  {
+    "title": "test group 2026-2",
+    "description": "For testing purposes only"
+  }],
+  "members": {
+    "to_add": [
+      "+1234567890",
+    ],
+    "send_invite_to_new_contacts": true,
+    "invitation_message": "Hi! You've been added to a WhatsApp group for your stay."
+  },
+  "automation": {
+    "wait_timeout": 30,
+    "action_delay": 1
+  }
+}
